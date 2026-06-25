@@ -30,13 +30,13 @@ const LocationMarker = ({ lat, lng, onLocationSelect }: { lat: number; lng: numb
   );
 };
 
-const MapAutoZoom = ({ lat, lng }: { lat: number; lng: number }) => {
+const GPSAutoZoom = ({ lat, lng }: { lat: number; lng: number }) => {
   const map = useMap();
   const prevCoords = useRef({ lat: 0, lng: 0 });
 
   if (lat !== 0 && lng !== 0 && (prevCoords.current.lat !== lat || prevCoords.current.lng !== lng)) {
     prevCoords.current = { lat, lng };
-    map.setView([lat, lng], 15);
+    map.setView([lat, lng], 18); // Zoom in more for precise selection
   }
 
   return null;
@@ -108,7 +108,7 @@ export function MapPicker({ lat, lng, onLocationSelect }: MapPickerProps) {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; OpenStreetMap contributors'
           />
-          <MapAutoZoom lat={lat} lng={lng} />
+          <GPSAutoZoom lat={lat} lng={lng} />
           <LocationMarker lat={lat} lng={lng} onLocationSelect={onLocationSelect} />
         </MapContainer>
       </div>

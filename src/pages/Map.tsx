@@ -15,6 +15,16 @@ const MapAutoCenter = ({ lat, lng }: { lat: number; lng: number }) => {
   return null;
 };
 
+const ClientAutoCenter = ({ client }: { client: any | null }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (client && client.lat && client.lng) {
+      map.setView([client.lat, client.lng], 15);
+    }
+  }, [client?.id, map]);
+  return null;
+};
+
 // Green marker for current location
 const currentLocationIcon = L.icon({
   iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzEwYjk4MSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNSIgZmlsbD0id2hpdGUiLz48L3N2Zz4=',
@@ -264,6 +274,7 @@ export function Map() {
             style={{ height: '100%', width: '100%' }}
           >
             <MapAutoCenter lat={gpsCoords.lat} lng={gpsCoords.lng} />
+            <ClientAutoCenter client={selectedClient} />
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; OpenStreetMap contributors'
