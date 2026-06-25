@@ -474,50 +474,57 @@ export function Map() {
             </div>
           ) : (
             <>
-              <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1f2937', margin: '0 0 12px 0' }}>
-                Clients ({clients.filter((c: any) => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.email.toLowerCase().includes(searchQuery.toLowerCase())).length})
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
-                {clients.filter((c: any) => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.email.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
-                  <p style={{ textAlign: 'center', color: '#9ca3af', fontSize: '13px', margin: '24px 0' }}>
-                    No clients found
-                  </p>
-                ) : (
-                  clients.filter((c: any) => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.email.toLowerCase().includes(searchQuery.toLowerCase())).map((client) => (
-                    <button
-                      key={client.id}
-                      onClick={() => setSelectedClient(client)}
-                      style={{
-                        backgroundColor: selectedClient?.id === client.id ? '#dbeafe' : '#f9fafb',
-                        border: selectedClient?.id === client.id ? '2px solid #3b82f6' : '1px solid #e5e7eb',
-                        borderRadius: '6px',
-                        padding: '10px',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s'
-                      }}
-                    >
-                      <div style={{ fontSize: '13px', fontWeight: '600', color: '#1f2937', marginBottom: '3px' }}>
-                        {client.name}
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px' }}>
-                        {client.email}
-                      </div>
-                      <span style={{
-                        display: 'inline-block',
-                        fontSize: '10px',
-                        fontWeight: '600',
-                        padding: '2px 6px',
-                        borderRadius: '3px',
-                        backgroundColor: getStatusColor(client.status) + '20',
-                        color: getStatusColor(client.status)
-                      }}>
-                        {getStatusLabel(client.status)}
-                      </span>
-                    </button>
-                  ))
-                )}
-              </div>
+              {(() => {
+                const filteredClients = clients.filter((c: any) => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.email.toLowerCase().includes(searchQuery.toLowerCase()));
+                return (
+                  <>
+                    <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1f2937', margin: '0 0 12px 0' }}>
+                      Clients ({filteredClients.length})
+                    </h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+                      {filteredClients.length === 0 ? (
+                        <p style={{ textAlign: 'center', color: '#9ca3af', fontSize: '13px', margin: '24px 0' }}>
+                          No clients found
+                        </p>
+                      ) : (
+                        filteredClients.map((client: any) => (
+                          <button
+                            key={client.id}
+                            onClick={() => setSelectedClient(client)}
+                            style={{
+                              backgroundColor: (selectedClient as any)?.id === client.id ? '#dbeafe' : '#f9fafb',
+                              border: (selectedClient as any)?.id === client.id ? '2px solid #3b82f6' : '1px solid #e5e7eb',
+                              borderRadius: '6px',
+                              padding: '10px',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s'
+                            }}
+                          >
+                            <div style={{ fontSize: '13px', fontWeight: '600', color: '#1f2937', marginBottom: '3px' }}>
+                              {client.name}
+                            </div>
+                            <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px' }}>
+                              {client.email}
+                            </div>
+                            <span style={{
+                              display: 'inline-block',
+                              fontSize: '10px',
+                              fontWeight: '600',
+                              padding: '2px 6px',
+                              borderRadius: '3px',
+                              backgroundColor: getStatusColor(client.status) + '20',
+                              color: getStatusColor(client.status)
+                            }}>
+                              {getStatusLabel(client.status)}
+                            </span>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </>
+                );
+              })()}
             </>
           )}
         </div>

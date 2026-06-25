@@ -17,8 +17,6 @@ const pinIcon = L.icon({
 });
 
 const LocationMarker = ({ lat, lng, onLocationSelect }: { lat: number; lng: number; onLocationSelect: (lat: number, lng: number) => void }) => {
-  const map = useMap();
-
   useMapEvents({
     click(e: any) {
       onLocationSelect(e.latlng.lat, e.latlng.lng);
