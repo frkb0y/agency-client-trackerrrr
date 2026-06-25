@@ -5,7 +5,25 @@ import L from 'leaflet';
 import { getClients } from '../lib/supabase';
 import type { Client } from '../types/client';
 
-// Custom marker icons
+const MapAutoCenter = ({ lat, lng }: { lat: number; lng: number }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (lat !== 0 && lng !== 0) {
+      map.setView([lat, lng], 15);
+    }
+  }, [lat, lng, map]);
+  return null;
+};
+
+// Green marker for current location
+const currentLocationIcon = L.icon({
+  iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzEwYjk4MSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNSIgZmlsbD0id2hpdGUiLz48L3N2Zz4=',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+  popupAnchor: [0, -12],
+});
+
+// Custom marker icons (pin style)
 const createMarkerIcon = (color: string, number: number) => {
   const colors: Record<string, string> = {
     new: '#3b82f6',
@@ -17,17 +35,18 @@ const createMarkerIcon = (color: string, number: number) => {
   const markerColor = colors[color] || '#3b82f6';
 
   const svgIcon = `
-    <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="20" cy="20" r="16" fill="${markerColor}" stroke="white" stroke-width="3"/>
-      <text x="20" y="25" text-anchor="middle" font-size="14" fill="white" font-weight="bold">${number}</text>
+    <svg width="40" height="56" viewBox="0 0 40 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 0C12.268 0 6 6.268 6 14C6 22.836 20 40 20 40C20 40 34 22.836 34 14C34 6.268 27.732 0 20 0Z" fill="${markerColor}"/>
+      <circle cx="20" cy="14" r="6" fill="white"/>
+      <text x="20" y="17" text-anchor="middle" font-size="10" fill="${markerColor}" font-weight="bold">${number}</text>
     </svg>
   `;
 
   return L.icon({
     iconUrl: `data:image/svg+xml;base64,${btoa(svgIcon)}`,
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-    popupAnchor: [0, -40],
+    iconSize: [40, 56],
+    iconAnchor: [20, 56],
+    popupAnchor: [0, -56],
   });
 };
 
@@ -51,10 +70,41 @@ export function Map() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number }>({ lat: 0, lng: 0 });
+  const [gpsLoading, setGpsLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     loadClients();
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const handleLocateMe = () => {
+    if (!navigator.geolocation) {
+      alert('GPS not available in your browser');
+      return;
+    }
+
+    // Clear old marker
+    setGpsCoords({ lat: 0, lng: 0 });
+    setGpsLoading(true);
+
+    // Get fresh GPS location
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setGpsCoords({ lat: latitude, lng: longitude });
+        setGpsLoading(false);
+      },
+      (error) => {
+        alert('Could not get GPS location: ' + error.message);
+        setGpsLoading(false);
+      }
+    );
+  };
 
   const loadClients = async () => {
     try {
@@ -129,21 +179,39 @@ export function Map() {
               {clients.length} client(s) on map
             </p>
           </div>
-          <button
-            onClick={() => navigate('/dashboard')}
-            style={{
-              backgroundColor: '#2563eb',
-              color: '#ffffff',
-              padding: '8px 16px',
-              borderRadius: '6px',
-              border: 'none',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer'
-            }}
-          >
-            ← Back to Dashboard
-          </button>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              onClick={handleLocateMe}
+              disabled={gpsLoading}
+              style={{
+                backgroundColor: gpsLoading ? '#9ca3af' : '#ec4899',
+                color: '#ffffff',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                border: 'none',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: gpsLoading ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {gpsLoading ? '🔄 Locating...' : '📍 Locate Me'}
+            </button>
+            <button
+              onClick={() => navigate('/dashboard')}
+              style={{
+                backgroundColor: '#2563eb',
+                color: '#ffffff',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                border: 'none',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              ← Back to Dashboard
+            </button>
+          </div>
         </div>
       </header>
 
@@ -174,18 +242,49 @@ export function Map() {
         </div>
       </div>
 
-      <div style={{ flex: 1, display: 'flex', gap: '16px', padding: '16px', overflow: 'hidden' }}>
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: '16px',
+        padding: '16px',
+        overflow: 'hidden'
+      }}>
         {/* Map Container */}
-        <div style={{ flex: 1, borderRadius: '8px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+        <div style={{
+          flex: isMobile ? '0 0 auto' : 1,
+          height: isMobile ? '300px' : '100%',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+        }}>
           <MapContainer
-            center={[36.8089, 11.0695]}
+            center={[gpsCoords.lat || 36.8089, gpsCoords.lng || 11.0695]}
             zoom={13}
             style={{ height: '100%', width: '100%' }}
           >
+            <MapAutoCenter lat={gpsCoords.lat} lng={gpsCoords.lng} />
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; OpenStreetMap contributors'
             />
+            {gpsCoords.lat !== 0 && gpsCoords.lng !== 0 && (
+              <Marker
+                position={[gpsCoords.lat, gpsCoords.lng]}
+                icon={currentLocationIcon}
+              >
+                <Popup>
+                  <div style={{ textAlign: 'center', minWidth: '150px' }}>
+                    <p style={{ fontSize: '14px', fontWeight: 'bold', color: '#10b981', margin: '0 0 8px 0' }}>
+                      📍 Your Location
+                    </p>
+                    <p style={{ fontSize: '12px', color: '#6b7280', margin: 0 }}>
+                      {gpsCoords.lat.toFixed(6)}, {gpsCoords.lng.toFixed(6)}
+                    </p>
+                  </div>
+                </Popup>
+              </Marker>
+            )}
             {clients.map((client, idx) => (
               <Marker
                 key={client.id}
@@ -235,15 +334,37 @@ export function Map() {
           </MapContainer>
         </div>
 
-        {/* Client Details Sidebar */}
+        {/* Client List Sidebar / Mobile List */}
         <div style={{
-          width: '280px',
+          width: isMobile ? '100%' : '320px',
+          flex: isMobile ? '1 1 auto' : 'initial',
           backgroundColor: '#ffffff',
           borderRadius: '8px',
           padding: '16px',
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          overflowY: 'auto'
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column'
         }}>
+          {/* Search Box */}
+          <div style={{ marginBottom: '16px' }}>
+            <input
+              type="text"
+              placeholder="Search clients..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                fontSize: '14px',
+                boxSizing: 'border-box',
+                fontFamily: 'inherit'
+              }}
+            />
+          </div>
+
           {selectedClient ? (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
@@ -352,9 +473,52 @@ export function Map() {
               </div>
             </div>
           ) : (
-            <div style={{ textAlign: 'center', color: '#9ca3af', paddingTop: '40px' }}>
-              <p style={{ fontSize: '14px', margin: 0 }}>Click a marker on the map to see client details</p>
-            </div>
+            <>
+              <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1f2937', margin: '0 0 12px 0' }}>
+                Clients ({clients.filter((c: any) => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.email.toLowerCase().includes(searchQuery.toLowerCase())).length})
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+                {clients.filter((c: any) => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.email.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
+                  <p style={{ textAlign: 'center', color: '#9ca3af', fontSize: '13px', margin: '24px 0' }}>
+                    No clients found
+                  </p>
+                ) : (
+                  clients.filter((c: any) => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.email.toLowerCase().includes(searchQuery.toLowerCase())).map((client) => (
+                    <button
+                      key={client.id}
+                      onClick={() => setSelectedClient(client)}
+                      style={{
+                        backgroundColor: selectedClient?.id === client.id ? '#dbeafe' : '#f9fafb',
+                        border: selectedClient?.id === client.id ? '2px solid #3b82f6' : '1px solid #e5e7eb',
+                        borderRadius: '6px',
+                        padding: '10px',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <div style={{ fontSize: '13px', fontWeight: '600', color: '#1f2937', marginBottom: '3px' }}>
+                        {client.name}
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px' }}>
+                        {client.email}
+                      </div>
+                      <span style={{
+                        display: 'inline-block',
+                        fontSize: '10px',
+                        fontWeight: '600',
+                        padding: '2px 6px',
+                        borderRadius: '3px',
+                        backgroundColor: getStatusColor(client.status) + '20',
+                        color: getStatusColor(client.status)
+                      }}>
+                        {getStatusLabel(client.status)}
+                      </span>
+                    </button>
+                  ))
+                )}
+              </div>
+            </>
           )}
         </div>
       </div>

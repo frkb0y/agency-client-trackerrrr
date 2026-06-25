@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { useState, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 
 interface MapPickerProps {
@@ -8,7 +8,17 @@ interface MapPickerProps {
   onLocationSelect: (lat: number, lng: number) => void;
 }
 
+// Pin location icon (pointy marker)
+const pinIcon = L.icon({
+  iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCAzMiA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTYgMEMxMC40NzcgMCA2IDQuNDc3IDYgMTBDNiAxNi4zODMgMTYgMzIgMTYgMzJDMTYgMzIgMjYgMTYuMzgzIDI2IDEwQzI2IDQuNDc3IDIxLjUyMyAwIDE2IDBaIiBmaWxsPSIjMjU2M2ViIi8+PGNpcmNsZSBjeD0iMTYiIGN5PSIxMCIgcj0iNiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=',
+  iconSize: [32, 48],
+  iconAnchor: [16, 48],
+  popupAnchor: [0, -48],
+});
+
 const LocationMarker = ({ lat, lng, onLocationSelect }: { lat: number; lng: number; onLocationSelect: (lat: number, lng: number) => void }) => {
+  const map = useMap();
+
   useMapEvents({
     click(e: any) {
       onLocationSelect(e.latlng.lat, e.latlng.lng);
@@ -18,13 +28,20 @@ const LocationMarker = ({ lat, lng, onLocationSelect }: { lat: number; lng: numb
   if (lat === 0 && lng === 0) return null;
 
   return (
-    <Marker position={[lat, lng]} icon={L.icon({
-      iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyNCIgY3k9IjI0IiByPSIxNiIgZmlsbD0iIzJmOTdlMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIzIi8+PGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iOCIgZmlsbD0id2hpdGUiLz48L3N2Zz4=',
-      iconSize: [48, 48],
-      iconAnchor: [24, 48],
-      popupAnchor: [0, -48],
-    })} />
+    <Marker position={[lat, lng]} icon={pinIcon} />
   );
+};
+
+const MapAutoZoom = ({ lat, lng }: { lat: number; lng: number }) => {
+  const map = useMap();
+  const prevCoords = useRef({ lat: 0, lng: 0 });
+
+  if (lat !== 0 && lng !== 0 && (prevCoords.current.lat !== lat || prevCoords.current.lng !== lng)) {
+    prevCoords.current = { lat, lng };
+    map.setView([lat, lng], 15);
+  }
+
+  return null;
 };
 
 export function MapPicker({ lat, lng, onLocationSelect }: MapPickerProps) {
@@ -93,6 +110,7 @@ export function MapPicker({ lat, lng, onLocationSelect }: MapPickerProps) {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; OpenStreetMap contributors'
           />
+          <MapAutoZoom lat={lat} lng={lng} />
           <LocationMarker lat={lat} lng={lng} onLocationSelect={onLocationSelect} />
         </MapContainer>
       </div>
