@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { addClient, updateClient, getClients } from '../lib/supabase';
+import { MapPicker } from '../components/MapPicker';
 import type { Client, ClientStatus } from '../types/client';
 
 const statuses: ClientStatus[] = ['new', 'contacted', 'approved', 'monthly_client'];
@@ -265,7 +266,7 @@ export function ClientForm() {
             />
           </div>
 
-          {/* Latitude */}
+          {/* Map Picker */}
           <div>
             <label style={{
               display: 'block',
@@ -274,53 +275,76 @@ export function ClientForm() {
               color: '#374151',
               marginBottom: '6px'
             }}>
-              Latitude
+              📍 Location (Click on map or use GPS)
             </label>
-            <input
-              type="number"
-              name="lat"
-              value={formData.lat}
-              onChange={handleChange}
-              step="0.0001"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '14px',
-                boxSizing: 'border-box',
-                fontFamily: 'inherit'
+            <MapPicker
+              lat={formData.lat}
+              lng={formData.lng}
+              onLocationSelect={(lat, lng) => {
+                setFormData({ ...formData, lat, lng });
               }}
             />
           </div>
 
-          {/* Longitude */}
-          <div>
-            <label style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#374151',
-              marginBottom: '6px'
-            }}>
-              Longitude
-            </label>
-            <input
-              type="number"
-              name="lng"
-              value={formData.lng}
-              onChange={handleChange}
-              step="0.0001"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
+          {/* Manual Latitude/Longitude */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div>
+              <label style={{
+                display: 'block',
                 fontSize: '14px',
-                boxSizing: 'border-box',
-                fontFamily: 'inherit'
-              }}
-            />
+                fontWeight: '600',
+                color: '#374151',
+                marginBottom: '6px'
+              }}>
+                Latitude
+              </label>
+              <input
+                type="number"
+                name="lat"
+                value={formData.lat}
+                onChange={handleChange}
+                step="0.0001"
+                placeholder="36.8089"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box',
+                  fontFamily: 'inherit'
+                }}
+              />
+            </div>
+
+            <div>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#374151',
+                marginBottom: '6px'
+              }}>
+                Longitude
+              </label>
+              <input
+                type="number"
+                name="lng"
+                value={formData.lng}
+                onChange={handleChange}
+                step="0.0001"
+                placeholder="11.0695"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box',
+                  fontFamily: 'inherit'
+                }}
+              />
+            </div>
           </div>
 
           {/* Status */}
