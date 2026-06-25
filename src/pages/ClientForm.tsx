@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { addClient, updateClient, getClients } from '../lib/supabase';
 import { MapPicker } from '../components/MapPicker';
-import type { Client, ClientStatus } from '../types/client';
+import type { ClientStatus } from '../types/client';
 
 const statuses: ClientStatus[] = ['new', 'contacted', 'approved', 'monthly_client'];
 
@@ -372,7 +372,7 @@ export function ClientForm() {
                 fontFamily: 'inherit'
               }}
             >
-              {statuses.map(status => (
+              {statuses.map((status: any) => (
                 <option key={status} value={status}>
                   {status.replace('_', ' ')}
                 </option>

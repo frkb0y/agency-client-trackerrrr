@@ -10,7 +10,7 @@ interface MapPickerProps {
 
 const LocationMarker = ({ lat, lng, onLocationSelect }: { lat: number; lng: number; onLocationSelect: (lat: number, lng: number) => void }) => {
   useMapEvents({
-    click(e) {
+    click(e: any) {
       onLocationSelect(e.latlng.lat, e.latlng.lng);
     },
   });

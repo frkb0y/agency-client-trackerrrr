@@ -34,13 +34,13 @@ export function Dashboard({ user }: DashboardProps) {
 
     try {
       await deleteClient(id);
-      setClients(clients.filter(c => c.id !== id));
+      setClients(clients.filter((c: any) => c.id !== id));
     } catch (error) {
       alert('Failed to delete client');
     }
   };
 
-  const filteredClients = clients.filter(c =>
+  const filteredClients = clients.filter((c: any) =>
     c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -167,7 +167,7 @@ export function Dashboard({ user }: DashboardProps) {
                   ✅ Approvals
                 </p>
                 <p style={{ fontSize: '16px', fontWeight: '700', color: '#10b981', margin: 0 }}>
-                  {Math.round((clients.filter(c => c.status === 'approved').length / 20) * 100)}%
+                  {Math.round((clients.filter((c: any) => c.status === 'approved').length / 20) * 100)}%
                 </p>
               </div>
               <div style={{ marginBottom: '12px' }}>
@@ -182,14 +182,14 @@ export function Dashboard({ user }: DashboardProps) {
                   <div style={{
                     height: '100%',
                     backgroundImage: 'linear-gradient(90deg, #10b981 0%, #059669 100%)',
-                    width: `${Math.min((clients.filter(c => c.status === 'approved').length / 20) * 100, 100)}%`,
+                    width: `${Math.min((clients.filter((c: any) => c.status === 'approved').length / 20) * 100, 100)}%`,
                     transition: 'width 0.5s ease',
                     borderRadius: '6px'
                   }}></div>
                 </div>
               </div>
               <p style={{ fontSize: '14px', color: '#166534', fontWeight: '600', margin: 0 }}>
-                {clients.filter(c => c.status === 'approved').length} / 20
+                {clients.filter((c: any) => c.status === 'approved').length} / 20
               </p>
             </div>
 
@@ -207,7 +207,7 @@ export function Dashboard({ user }: DashboardProps) {
                   🆕 New Clients
                 </p>
                 <p style={{ fontSize: '16px', fontWeight: '700', color: '#f59e0b', margin: 0 }}>
-                  {Math.round((clients.filter(c => c.status === 'new').length / 60) * 100)}%
+                  {Math.round((clients.filter((c: any) => c.status === 'new').length / 60) * 100)}%
                 </p>
               </div>
               <div style={{ marginBottom: '12px' }}>
@@ -222,14 +222,14 @@ export function Dashboard({ user }: DashboardProps) {
                   <div style={{
                     height: '100%',
                     backgroundImage: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)',
-                    width: `${Math.min((clients.filter(c => c.status === 'new').length / 60) * 100, 100)}%`,
+                    width: `${Math.min((clients.filter((c: any) => c.status === 'new').length / 60) * 100, 100)}%`,
                     transition: 'width 0.5s ease',
                     borderRadius: '6px'
                   }}></div>
                 </div>
               </div>
               <p style={{ fontSize: '14px', color: '#92400e', fontWeight: '600', margin: 0 }}>
-                {clients.filter(c => c.status === 'new').length} / 60
+                {clients.filter((c: any) => c.status === 'new').length} / 60
               </p>
             </div>
 
@@ -247,7 +247,7 @@ export function Dashboard({ user }: DashboardProps) {
                   🔄 Monthly Clients
                 </p>
                 <p style={{ fontSize: '16px', fontWeight: '700', color: '#8b5cf6', margin: 0 }}>
-                  {Math.round((clients.filter(c => c.status === 'monthly_client').length / 3) * 100)}%
+                  {Math.round((clients.filter((c: any) => c.status === 'monthly_client').length / 3) * 100)}%
                 </p>
               </div>
               <div style={{ marginBottom: '12px' }}>
@@ -262,14 +262,14 @@ export function Dashboard({ user }: DashboardProps) {
                   <div style={{
                     height: '100%',
                     backgroundImage: 'linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%)',
-                    width: `${Math.min((clients.filter(c => c.status === 'monthly_client').length / 3) * 100, 100)}%`,
+                    width: `${Math.min((clients.filter((c: any) => c.status === 'monthly_client').length / 3) * 100, 100)}%`,
                     transition: 'width 0.5s ease',
                     borderRadius: '6px'
                   }}></div>
                 </div>
               </div>
               <p style={{ fontSize: '14px', color: '#6b21a8', fontWeight: '600', margin: 0 }}>
-                {clients.filter(c => c.status === 'monthly_client').length} / 3
+                {clients.filter((c: any) => c.status === 'monthly_client').length} / 3
               </p>
             </div>
           </div>
@@ -339,7 +339,7 @@ export function Dashboard({ user }: DashboardProps) {
                 </thead>
                 <tbody>
                   {filteredClients.map((client) => (
-                    <tr key={client.id} style={{ borderBottom: '1px solid #e5e7eb', hover: { backgroundColor: '#f9fafb' } }}>
+                    <tr key={client.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
                       <td style={{ padding: '12px', fontSize: '14px', color: '#1f2937' }}>{client.name}</td>
                       <td style={{ padding: '12px', fontSize: '14px', color: '#6b7280' }}>{client.email}</td>
                       <td style={{ padding: '12px', fontSize: '14px', color: '#6b7280' }}>{client.phone}</td>

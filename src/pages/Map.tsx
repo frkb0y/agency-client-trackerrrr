@@ -267,7 +267,7 @@ export function Map() {
                 </button>
               </div>
 
-              <div style={{ space: '12px' }}>
+              <div>
                 <div style={{ marginBottom: '12px' }}>
                   <p style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', margin: '0 0 4px 0', textTransform: 'uppercase' }}>
                     Email

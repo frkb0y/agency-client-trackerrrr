@@ -1,6 +1,6 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import { Client } from '../types/client';
+import type { Client } from '../types/client';
 
 interface MapProps {
   clients: Client[];
